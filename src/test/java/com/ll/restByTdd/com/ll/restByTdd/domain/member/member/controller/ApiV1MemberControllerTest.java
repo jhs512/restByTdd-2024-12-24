@@ -129,8 +129,34 @@ public class ApiV1MemberControllerTest {
     }
 
     @Test
-    @DisplayName("내 정보, with user1")
+    @DisplayName("로그인, without username")
     void t4() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/members/login")
+                                .content("""
+                                        {
+                                            "username": "",
+                                            "password": "1234"
+                                        }
+                                        """.stripIndent())
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("login"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.resultCode").value("401-1"))
+                .andExpect(jsonPath("$.msg").value("존재하지 않는 사용자입니다."));
+    }
+
+    @Test
+    @DisplayName("내 정보, with user1")
+    void t5() throws Exception {
         Member member = memberService.findByUsername("user1").get();
 
         ResultActions resultActions = mvc
