@@ -33,7 +33,7 @@ public class Rq {
         Optional<Member> opActor = memberService.findByApiKey(apiKey);
 
         if (opActor.isEmpty())
-            throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
+            throw new ServiceException("401-1", "사용자 인증정보가 올바르지 않습니다.");
 
         return opActor.get();
     }
