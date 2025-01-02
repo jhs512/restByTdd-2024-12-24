@@ -111,6 +111,8 @@ public class ApiV1MemberControllerTest {
                 )
                 .andDo(print());
 
+        Member member = memberService.findByUsername("user1").get();
+
         resultActions
                 .andExpect(handler().handlerType(ApiV1MemberController.class))
                 .andExpect(handler().methodName("login"))
@@ -119,10 +121,10 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.msg").value("유저1님 환영합니다."))
                 .andExpect(jsonPath("$.data").exists())
                 .andExpect(jsonPath("$.data.item").exists())
-                .andExpect(jsonPath("$.data.item.id").isNumber())
+                .andExpect(jsonPath("$.data.item.id").value(member.getId()))
                 .andExpect(jsonPath("$.data.item.createDate").isString())
                 .andExpect(jsonPath("$.data.item.modifyDate").isString())
                 .andExpect(jsonPath("$.data.item.nickname").value("유저1"))
-                .andExpect(jsonPath("$.data.apiKey").isString());
+                .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
     }
 }
