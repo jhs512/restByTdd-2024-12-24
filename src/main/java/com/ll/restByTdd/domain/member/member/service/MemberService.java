@@ -22,7 +22,7 @@ public class MemberService {
         memberRepository
                 .findByUsername(username)
                 .ifPresent(_ -> {
-                    throw new ServiceException("400-1", "해당 username은 이미 사용중입니다.");
+                    throw new ServiceException("409-1", "해당 username은 이미 사용중입니다.");
                 });
 
         Member member = Member.builder()
