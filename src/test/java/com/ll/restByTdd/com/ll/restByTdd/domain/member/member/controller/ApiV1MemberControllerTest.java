@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -126,5 +127,27 @@ public class ApiV1MemberControllerTest {
                 .andExpect(jsonPath("$.data.item.modifyDate").isString())
                 .andExpect(jsonPath("$.data.item.nickname").value("유저1"))
                 .andExpect(jsonPath("$.data.apiKey").value(member.getApiKey()));
+    }
+
+    @Test
+    @DisplayName("내 정보, with user1")
+    void t4() throws Exception {
+        Member member = memberService.findByUsername("user1").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/members/me")
+                                .header("Authorization", "bearer " + member.getApiKey())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1MemberController.class))
+                .andExpect(handler().methodName("me"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(member.getId()))
+                .andExpect(jsonPath("$.createDate").isString())
+                .andExpect(jsonPath("$.modifyDate").isString())
+                .andExpect(jsonPath("$.nickname").value(member.getNickname()));
     }
 }
