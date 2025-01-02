@@ -137,7 +137,7 @@ public class ApiV1MemberControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/members/me")
-                                .header("Authorization", "bearer " + member.getApiKey())
+                                .header("Authorization", "Bearer " + member.getApiKey())
                 )
                 .andDo(print());
 
