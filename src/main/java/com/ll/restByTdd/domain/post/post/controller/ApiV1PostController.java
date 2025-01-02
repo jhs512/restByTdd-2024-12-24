@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -62,10 +63,23 @@ public class ApiV1PostController {
     }
 
     @PutMapping("/{id}")
+    @Transactional
     public RsData<PostDto> modify(
             @PathVariable long id,
             @RequestBody @Valid PostModifyReqBody reqBody
     ) {
-        return null;
+        Member actor = rq.checkAuthentication();
+
+        Post post = postService.findById(id).get();
+
+        post.checkActorCanModify(actor);
+
+        postService.modify(post, reqBody.title, reqBody.content);
+
+        return new RsData<>(
+                "200-1",
+                "%d번 글이 수정되었습니다.".formatted(id),
+                new PostDto(post)
+        );
     }
 }
