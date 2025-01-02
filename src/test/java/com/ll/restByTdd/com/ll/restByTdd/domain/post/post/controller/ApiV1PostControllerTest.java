@@ -276,4 +276,33 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("apiKey를 입력해주세요."));
     }
+
+    @Test
+    @DisplayName("글 수정")
+    void t9() throws Exception {
+        Member actor = memberService.findByUsername("user2").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        put("/api/v1/posts/1")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                                .content("""
+                                        {
+                                            "title": "축구 하실 분 계신가요?",
+                                            "content": "14시 까지 22명을 모아야 진행이 됩니다."
+                                        }
+                                        """)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("modify"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.resultCode").value("403-2"))
+                .andExpect(jsonPath("$.msg").value("작성자만 글을 수정할 수 있습니다."));
+    }
 }
