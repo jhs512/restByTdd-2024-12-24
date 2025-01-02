@@ -16,6 +16,6 @@ public class ApiV1PostController {
 
     @GetMapping("/{id}")
     public PostDto item(@PathVariable long id) {
-        return null;
+        return new PostDto(postService.findById(id).get());
     }
 }
