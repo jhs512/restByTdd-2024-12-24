@@ -48,4 +48,8 @@ public class PostService {
     public void flush() {
         postRepository.flush(); // em.flush(); 와 동일
     }
+
+    public Optional<Post> findLatest() {
+        return postRepository.findFirstByOrderByIdDesc();
+    }
 }

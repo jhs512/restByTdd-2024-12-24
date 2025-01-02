@@ -1,5 +1,7 @@
 package com.ll.restByTdd.com.ll.restByTdd.domain.post.post.controller;
 
+import com.ll.restByTdd.domain.member.member.entity.Member;
+import com.ll.restByTdd.domain.member.member.service.MemberService;
 import com.ll.restByTdd.domain.post.post.controller.ApiV1PostController;
 import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
@@ -9,12 +11,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -25,6 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApiV1PostControllerTest {
     @Autowired
     private PostService postService;
+    @Autowired
+    private MemberService memberService;
     @Autowired
     private MockMvc mvc;
 
@@ -68,4 +77,43 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("404-1"))
                 .andExpect(jsonPath("$.msg").value("해당 데이터가 존재하지 않습니다."));
     }
+
+    @Test
+    @DisplayName("글 작성")
+    void t3() throws Exception {
+        Member actor = memberService.findByUsername("user1").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/posts")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                                .content("""
+                                        {
+                                            "title": "제목 new",
+                                            "content": "내용 new"
+                                        }
+                                        """)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+
+        Post post = postService.findLatest().get();
+
+        assertThat(post.getAuthor()).isEqualTo(actor);
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("item"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(post.getId()))
+                .andExpect(jsonPath("$.createDate").value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.modifyDate").value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.authorId").value(post.getAuthor().getId()))
+                .andExpect(jsonPath("$.authorName").value(post.getAuthor().getName()))
+                .andExpect(jsonPath("$.title").value(post.getTitle()))
+                .andExpect(jsonPath("$.content").value(post.getContent()));
+    }
+
 }
