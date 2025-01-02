@@ -49,4 +49,23 @@ public class ApiV1PostController {
                 new PostDto(post)
         );
     }
+
+
+    record PostModifyReqBody(
+            @NotBlank
+            @Length(min = 2, max = 100)
+            String title,
+            @NotBlank
+            @Length(min = 2, max = 10000000)
+            String content
+    ) {
+    }
+
+    @PutMapping("/{id}")
+    public RsData<PostDto> modify(
+            @PathVariable long id,
+            @RequestBody @Valid PostModifyReqBody reqBody
+    ) {
+        return null;
+    }
 }
