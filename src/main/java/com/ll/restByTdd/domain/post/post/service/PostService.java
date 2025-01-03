@@ -18,11 +18,12 @@ public class PostService {
         return postRepository.count();
     }
 
-    public Post write(Member author, String title, String content) {
+    public Post write(Member author, String title, String content, boolean published) {
         Post post = Post.builder()
                 .author(author)
                 .title(title)
                 .content(content)
+                .published(published)
                 .build();
 
         return postRepository.save(post);

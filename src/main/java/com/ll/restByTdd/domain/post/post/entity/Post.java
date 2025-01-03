@@ -31,6 +31,8 @@ public class Post extends BaseTime {
     @Builder.Default
     private List<PostComment> comments = new ArrayList<>();
 
+    private boolean published;
+
     public PostComment addComment(Member author, String content) {
         PostComment comment = PostComment.builder()
                 .post(this)
