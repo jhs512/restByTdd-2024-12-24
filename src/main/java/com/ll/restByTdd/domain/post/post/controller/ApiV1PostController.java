@@ -38,10 +38,14 @@ public class ApiV1PostController {
                 .stream()
                 .map(PostDto::new)
                 .toList();
+        long totalPages = postPage.getTotalPages();
 
         return Map.of(
                 "totalItems", totalItems,
-                "items", items
+                "items", items,
+                "totalPages", totalPages,
+                "currentPageNumber", page,
+                "pageSize", pageSize
         );
     }
 
