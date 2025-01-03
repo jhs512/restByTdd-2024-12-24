@@ -98,4 +98,38 @@ public class ApiV1PostCommentController {
                 new PostCommentDto(postComment)
         );
     }
+
+
+    record PostCommentWriteReqBody(
+            @NotBlank
+            @Length(min = 2, max = 100)
+            String content
+    ) {
+    }
+
+    @PostMapping
+    @Transactional
+    public RsData<PostCommentDto> write(
+            @PathVariable long postId,
+            @RequestBody @Valid PostCommentWriteReqBody reqBody
+    ) {
+        Member actor = rq.checkAuthentication();
+
+        Post post = postService.findById(postId).orElseThrow(
+                () -> new ServiceException("404-1", "%d번 글은 존재하지 않습니다.".formatted(postId))
+        );
+
+        PostComment postComment = post.addComment(
+                actor,
+                reqBody.content
+        );
+
+        postService.flush();
+
+        return new RsData<>(
+                "201-1",
+                "%d번 댓글이 생성되었습니다.".formatted(postComment.getId()),
+                new PostCommentDto(postComment)
+        );
+    }
 }
