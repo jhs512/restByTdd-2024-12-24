@@ -592,7 +592,7 @@ public class ApiV1PostControllerTest {
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
-                .andExpect(handler().methodName("items"))
+                .andExpect(handler().methodName("mine"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalItems").value(postPage.getTotalElements()))
                 .andExpect(jsonPath("$.totalPages").value(postPage.getTotalPages()))

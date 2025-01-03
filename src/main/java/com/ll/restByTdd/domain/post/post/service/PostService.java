@@ -85,4 +85,29 @@ public class PostService {
             default -> postRepository.findByListedAndTitleLike(listed, searchKeyword, pageRequest);
         };
     }
+
+    public Page<Post> findByAuthorPaged(Member author, int page, int pageSize) {
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
+
+        return postRepository.findByAuthor(author, pageRequest);
+    }
+
+    public Page<Post> findByAuthorPaged(
+            Member author,
+            String searchKeywordType,
+            String searchKeyword,
+            int page,
+            int pageSize
+    ) {
+        if (Ut.str.isBlank(searchKeyword)) return findByAuthorPaged(author, page, pageSize);
+
+        PageRequest pageRequest = PageRequest.of(page - 1, pageSize, Sort.by(Sort.Order.desc("id")));
+
+        searchKeyword = "%" + searchKeyword + "%";
+
+        return switch (searchKeywordType) {
+            case "content" -> postRepository.findByAuthorAndContentLike(author, searchKeyword, pageRequest);
+            default -> postRepository.findByAuthorAndTitleLike(author, searchKeyword, pageRequest);
+        };
+    }
 }

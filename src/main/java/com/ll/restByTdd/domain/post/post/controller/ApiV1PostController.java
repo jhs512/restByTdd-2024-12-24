@@ -22,6 +22,21 @@ public class ApiV1PostController {
     private final PostService postService;
     private final Rq rq;
 
+    @GetMapping("/mine")
+    public PageDto<PostDto> mine(
+            @RequestParam(defaultValue = "title") String searchKeywordType,
+            @RequestParam(defaultValue = "") String searchKeyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        Member actor = rq.checkAuthentication();
+
+        return new PageDto<>(
+                postService.findByAuthorPaged(actor, searchKeywordType, searchKeyword, page, pageSize)
+                        .map(PostDto::new)
+        );
+    }
+
     @GetMapping
     public PageDto<PostDto> items(
             @RequestParam(defaultValue = "title") String searchKeywordType,
