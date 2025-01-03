@@ -615,4 +615,86 @@ public class ApiV1PostControllerTest {
                     .andExpect(jsonPath("$.items[%d].listed".formatted(i)).value(post.isListed()));
         }
     }
+
+    @Test
+    @DisplayName("내글 다건 조회 with searchKeyword=발야구")
+    void t21() throws Exception {
+        Member actor = memberService.findByUsername("user4").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/mine?page=1&pageSize=3&searchKeyword=발야구")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                )
+                .andDo(print());
+
+        Page<Post> postPage = postService
+                .findByAuthorPaged(actor, "title", "발야구", 1, 3);
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(postPage.getTotalElements()))
+                .andExpect(jsonPath("$.totalPages").value(postPage.getTotalPages()))
+                .andExpect(jsonPath("$.currentPageNumber").value(1))
+                .andExpect(jsonPath("$.pageSize").value(3));
+
+        List<Post> posts = postPage.getContent();
+
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            resultActions
+                    .andExpect(jsonPath("$.items[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$.items[%d].createDate".formatted(i)).value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].modifyDate".formatted(i)).value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
+                    .andExpect(jsonPath("$.items[%d].authorName".formatted(i)).value(post.getAuthor().getName()))
+                    .andExpect(jsonPath("$.items[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$.items[%d].content".formatted(i)).doesNotExist())
+                    .andExpect(jsonPath("$.items[%d].published".formatted(i)).value(post.isPublished()))
+                    .andExpect(jsonPath("$.items[%d].listed".formatted(i)).value(post.isListed()));
+        }
+    }
+
+    @Test
+    @DisplayName("내글 다건 조회 with searchKeywordType=content&searchKeyword=18명")
+    void t22() throws Exception {
+        Member actor = memberService.findByUsername("user4").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/mine?page=1&pageSize=3&searchKeywordType=content&searchKeyword=18명")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                )
+                .andDo(print());
+
+        Page<Post> postPage = postService
+                .findByAuthorPaged(actor, "content", "18명", 1, 3);
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("mine"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(postPage.getTotalElements()))
+                .andExpect(jsonPath("$.totalPages").value(postPage.getTotalPages()))
+                .andExpect(jsonPath("$.currentPageNumber").value(1))
+                .andExpect(jsonPath("$.pageSize").value(3));
+
+        List<Post> posts = postPage.getContent();
+
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            resultActions
+                    .andExpect(jsonPath("$.items[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$.items[%d].createDate".formatted(i)).value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].modifyDate".formatted(i)).value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
+                    .andExpect(jsonPath("$.items[%d].authorName".formatted(i)).value(post.getAuthor().getName()))
+                    .andExpect(jsonPath("$.items[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$.items[%d].content".formatted(i)).doesNotExist())
+                    .andExpect(jsonPath("$.items[%d].published".formatted(i)).value(post.isPublished()))
+                    .andExpect(jsonPath("$.items[%d].listed".formatted(i)).value(post.isListed()));
+        }
+    }
 }
