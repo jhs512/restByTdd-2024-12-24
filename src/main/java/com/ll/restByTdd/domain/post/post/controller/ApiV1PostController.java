@@ -7,16 +7,13 @@ import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import com.ll.restByTdd.global.rq.Rq;
 import com.ll.restByTdd.global.rsData.RsData;
+import com.ll.restByTdd.standard.page.dto.PageDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.data.domain.Page;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -26,26 +23,13 @@ public class ApiV1PostController {
     private final Rq rq;
 
     @GetMapping
-    public Map<String, Object> items(
+    public PageDto<PostDto> items(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
-        Page<Post> postPage = postService.findByListedPaged(true, page, pageSize);
-
-        long totalItems = postPage.getTotalElements();
-        List<PostDto> items = postPage
-                .getContent()
-                .stream()
-                .map(PostDto::new)
-                .toList();
-        long totalPages = postPage.getTotalPages();
-
-        return Map.of(
-                "totalItems", totalItems,
-                "items", items,
-                "totalPages", totalPages,
-                "currentPageNumber", page,
-                "pageSize", pageSize
+        return new PageDto<>(
+                postService.findByListedPaged(true, page, pageSize)
+                        .map(PostDto::new)
         );
     }
 
