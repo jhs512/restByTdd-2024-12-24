@@ -323,6 +323,8 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().methodName("delete"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
-                .andExpect(jsonPath("$.msg").value("1번글이 삭제되었습니다."));
+                .andExpect(jsonPath("$.msg").value("1번 글이 삭제되었습니다."));
+
+        assertThat(postService.findById(1)).isEmpty();
     }
 }
