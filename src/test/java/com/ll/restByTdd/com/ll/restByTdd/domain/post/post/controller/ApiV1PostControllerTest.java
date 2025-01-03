@@ -428,4 +428,24 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("401-1"))
                 .andExpect(jsonPath("$.msg").value("apiKey를 입력해주세요."));
     }
+
+    @Test
+    @DisplayName("비공개글 6번글 조회, with no permission")
+    void t16() throws Exception {
+        Member actor = memberService.findByUsername("user1").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts/6")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("item"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.resultCode").value("403-1"))
+                .andExpect(jsonPath("$.msg").value("비공개글은 작성자만 볼 수 있습니다."));
+    }
 }
