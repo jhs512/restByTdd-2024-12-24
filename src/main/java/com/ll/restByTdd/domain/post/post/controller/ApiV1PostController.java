@@ -13,12 +13,23 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
 public class ApiV1PostController {
     private final PostService postService;
     private final Rq rq;
+
+    @GetMapping
+    public List<PostDto> items() {
+        List<Post> posts = postService.findAllByOrderByIdDesc();
+
+        return posts.stream()
+                .map(PostDto::new)
+                .toList();
+    }
 
     @GetMapping("/{id}")
     public PostDto item(@PathVariable long id) {
