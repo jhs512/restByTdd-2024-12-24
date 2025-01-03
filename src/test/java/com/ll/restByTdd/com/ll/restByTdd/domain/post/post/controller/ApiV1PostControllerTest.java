@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -457,5 +458,36 @@ public class ApiV1PostControllerTest {
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.resultCode").value("403-1"))
                 .andExpect(jsonPath("$.msg").value("비공개글은 작성자만 볼 수 있습니다."));
+    }
+
+    @Test
+    @DisplayName("다건 조회")
+    void t17() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(
+                        get("/api/v1/posts")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("items"))
+                .andExpect(status().isOk());
+
+        List<Post> posts = postService.findAllByOrderByIdDesc();
+
+        for (int i = 0; i < posts.size(); i++) {
+            Post post = posts.get(i);
+            resultActions
+                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$[%d].createDate".formatted(i)).value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$[%d].modifyDate".formatted(i)).value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
+                    .andExpect(jsonPath("$[%d].authorName".formatted(i)).value(post.getAuthor().getName()))
+                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$[%d].content".formatted(i)).doesNotExist())
+                    .andExpect(jsonPath("$[%d].published".formatted(i)).value(post.isPublished()))
+                    .andExpect(jsonPath("$[%d].listed".formatted(i)).value(post.isListed()));
+        }
     }
 }
