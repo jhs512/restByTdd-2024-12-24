@@ -24,8 +24,11 @@ public class ApiV1PostController {
     private final Rq rq;
 
     @GetMapping
-    public List<PostDto> items() {
-        List<Post> posts = postService.findAllByOrderByIdDesc();
+    public List<PostDto> items(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize
+    ) {
+        List<Post> posts = postService.findByListedPaged(true, page, pageSize);
 
         return posts.stream()
                 .map(PostDto::new)
