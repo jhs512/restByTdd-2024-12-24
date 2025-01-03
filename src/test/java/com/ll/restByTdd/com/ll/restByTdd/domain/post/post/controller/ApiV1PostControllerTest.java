@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -469,27 +470,29 @@ public class ApiV1PostControllerTest {
                 )
                 .andDo(print());
 
+        Page<Post> postPage = postService
+                .findByListedPaged(true, 1, 3);
+
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostController.class))
                 .andExpect(handler().methodName("items"))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalItems").value(postPage.getTotalElements()));
 
-        List<Post> posts = postService
-                .findByListedPaged(true, 1, 3)
-                .getContent();
+        List<Post> posts = postPage.getContent();
 
         for (int i = 0; i < posts.size(); i++) {
             Post post = posts.get(i);
             resultActions
-                    .andExpect(jsonPath("$[%d].id".formatted(i)).value(post.getId()))
-                    .andExpect(jsonPath("$[%d].createDate".formatted(i)).value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
-                    .andExpect(jsonPath("$[%d].modifyDate".formatted(i)).value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
-                    .andExpect(jsonPath("$[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
-                    .andExpect(jsonPath("$[%d].authorName".formatted(i)).value(post.getAuthor().getName()))
-                    .andExpect(jsonPath("$[%d].title".formatted(i)).value(post.getTitle()))
-                    .andExpect(jsonPath("$[%d].content".formatted(i)).doesNotExist())
-                    .andExpect(jsonPath("$[%d].published".formatted(i)).value(post.isPublished()))
-                    .andExpect(jsonPath("$[%d].listed".formatted(i)).value(post.isListed()));
+                    .andExpect(jsonPath("$.items[%d].id".formatted(i)).value(post.getId()))
+                    .andExpect(jsonPath("$.items[%d].createDate".formatted(i)).value(Matchers.startsWith(post.getCreateDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].modifyDate".formatted(i)).value(Matchers.startsWith(post.getModifyDate().toString().substring(0, 25))))
+                    .andExpect(jsonPath("$.items[%d].authorId".formatted(i)).value(post.getAuthor().getId()))
+                    .andExpect(jsonPath("$.items[%d].authorName".formatted(i)).value(post.getAuthor().getName()))
+                    .andExpect(jsonPath("$.items[%d].title".formatted(i)).value(post.getTitle()))
+                    .andExpect(jsonPath("$.items[%d].content".formatted(i)).doesNotExist())
+                    .andExpect(jsonPath("$.items[%d].published".formatted(i)).value(post.isPublished()))
+                    .andExpect(jsonPath("$.items[%d].listed".formatted(i)).value(post.isListed()));
         }
     }
 }
