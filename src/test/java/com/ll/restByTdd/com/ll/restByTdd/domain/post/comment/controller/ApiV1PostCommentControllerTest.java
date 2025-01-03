@@ -4,6 +4,7 @@ import com.ll.restByTdd.domain.member.member.entity.Member;
 import com.ll.restByTdd.domain.member.member.service.MemberService;
 import com.ll.restByTdd.domain.post.comment.controller.ApiV1PostCommentController;
 import com.ll.restByTdd.domain.post.comment.entity.PostComment;
+import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -117,5 +118,42 @@ public class ApiV1PostCommentControllerTest {
                 .andExpect(jsonPath("$.data.authorId").value(actor.getId()))
                 .andExpect(jsonPath("$.data.authorName").value(actor.getName()))
                 .andExpect(jsonPath("$.data.content").value("내용 new"));
+    }
+
+    @Test
+    @DisplayName("댓글 등록")
+    void t4() throws Exception {
+        Member actor = memberService.findByUsername("user2").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        post("/api/v1/posts/1/comments")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                                .content("""
+                                        {
+                                            "content": "내용 new"
+                                        }
+                                        """)
+                                .contentType(
+                                        new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8)
+                                )
+                )
+                .andDo(print());
+
+        Post post = postService.findById(1).get();
+        PostComment lastPostComment = post.getComments().getLast();
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostCommentController.class))
+                .andExpect(handler().methodName("write"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.resultCode").value("201-1"))
+                .andExpect(jsonPath("$.msg").value("%d번 댓글이 생성되었습니다.".formatted(lastPostComment.getId())))
+                .andExpect(jsonPath("$.data.id").value(lastPostComment.getId()))
+                .andExpect(jsonPath("$.data.createDate").value(Matchers.startsWith(lastPostComment.getCreateDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.data.modifyDate").value(Matchers.startsWith(lastPostComment.getModifyDate().toString().substring(0, 25))))
+                .andExpect(jsonPath("$.data.authorId").value(lastPostComment.getAuthor().getId()))
+                .andExpect(jsonPath("$.data.authorName").value(lastPostComment.getAuthor().getName()))
+                .andExpect(jsonPath("$.data.content").value(lastPostComment.getContent()));
     }
 }
