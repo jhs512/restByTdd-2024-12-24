@@ -24,11 +24,13 @@ public class ApiV1PostController {
 
     @GetMapping
     public PageDto<PostDto> items(
+            @RequestParam(defaultValue = "title") String searchKeywordType,
+            @RequestParam(defaultValue = "") String searchKeyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize
     ) {
         return new PageDto<>(
-                postService.findByListedPaged(true, page, pageSize)
+                postService.findByListedPaged(true, searchKeywordType, searchKeyword, page, pageSize)
                         .map(PostDto::new)
         );
     }
