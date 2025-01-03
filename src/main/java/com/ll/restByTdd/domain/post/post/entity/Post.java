@@ -60,20 +60,30 @@ public class Post extends BaseTime {
     }
 
     public void checkActorCanDelete(Member actor) {
-        if (actor == null) throw new ServiceException("403-1", "로그인 후 이용해주세요.");
+        if (actor == null) throw new ServiceException("401-1", "로그인 후 이용해주세요.");
 
         if (actor.isAdmin()) return;
 
         if (actor.equals(author)) return;
 
-        throw new ServiceException("403-2", "작성자만 글을 삭제할 수 있습니다.");
+        throw new ServiceException("403-1", "작성자만 글을 삭제할 수 있습니다.");
     }
 
     public void checkActorCanModify(Member actor) {
-        if (actor == null) throw new ServiceException("403-1", "로그인 후 이용해주세요.");
+        if (actor == null) throw new ServiceException("401-1", "로그인 후 이용해주세요.");
 
         if (actor.equals(author)) return;
 
-        throw new ServiceException("403-2", "작성자만 글을 수정할 수 있습니다.");
+        throw new ServiceException("403-1", "작성자만 글을 수정할 수 있습니다.");
+    }
+
+    public void checkActorCanRead(Member actor) {
+        if (actor == null) throw new ServiceException("401-1", "로그인 후 이용해주세요.");
+
+        if (actor.isAdmin()) return;
+
+        if (actor.equals(author)) return;
+
+        throw new ServiceException("403-1", "비공개글은 작성자만 볼 수 있습니다.");
     }
 }
