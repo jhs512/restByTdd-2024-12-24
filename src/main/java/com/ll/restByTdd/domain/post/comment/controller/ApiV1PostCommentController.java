@@ -1,6 +1,7 @@
 package com.ll.restByTdd.domain.post.comment.controller;
 
 import com.ll.restByTdd.domain.post.comment.dto.PostCommentDto;
+import com.ll.restByTdd.domain.post.post.entity.Post;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import com.ll.restByTdd.global.rq.Rq;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,12 @@ public class ApiV1PostCommentController {
     public List<PostCommentDto> items(
             @PathVariable long postId
     ) {
-        return null;
+        Post post = postService.findById(postId).get();
+
+        return post
+                .getComments()
+                .stream()
+                .map(PostCommentDto::new)
+                .toList();
     }
 }
