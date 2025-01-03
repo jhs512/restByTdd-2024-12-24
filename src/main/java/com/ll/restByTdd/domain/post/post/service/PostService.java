@@ -42,9 +42,11 @@ public class PostService {
         postRepository.delete(post);
     }
 
-    public void modify(Post post, String title, String content) {
+    public void modify(Post post, String title, String content, boolean published, boolean listed) {
         post.setTitle(title);
         post.setContent(content);
+        post.setPublished(published);
+        post.setListed(listed);
     }
 
     public void flush() {

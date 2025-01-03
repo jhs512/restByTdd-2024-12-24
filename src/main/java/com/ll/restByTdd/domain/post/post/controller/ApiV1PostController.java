@@ -40,7 +40,9 @@ public class ApiV1PostController {
             String title,
             @NotBlank
             @Length(min = 2, max = 10000000)
-            String content
+            String content,
+            boolean published,
+            boolean listed
     ) {
     }
 
@@ -54,8 +56,8 @@ public class ApiV1PostController {
                 actor,
                 reqBody.title,
                 reqBody.content,
-                true,
-                true
+                reqBody.published,
+                reqBody.listed
         );
 
         return new RsData<>(
@@ -72,7 +74,9 @@ public class ApiV1PostController {
             String title,
             @NotBlank
             @Length(min = 2, max = 10000000)
-            String content
+            String content,
+            boolean published,
+            boolean listed
     ) {
     }
 
@@ -88,7 +92,7 @@ public class ApiV1PostController {
 
         post.checkActorCanModify(actor);
 
-        postService.modify(post, reqBody.title, reqBody.content);
+        postService.modify(post, reqBody.title, reqBody.content, reqBody.published, reqBody.listed);
 
         postService.flush();
 
