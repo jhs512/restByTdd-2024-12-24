@@ -327,4 +327,24 @@ public class ApiV1PostControllerTest {
 
         assertThat(postService.findById(1)).isEmpty();
     }
+
+    @Test
+    @DisplayName("글 삭제, with not exist post id")
+    void t11() throws Exception {
+        Member actor = memberService.findByUsername("user1").get();
+
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/api/v1/posts/1000000")
+                                .header("Authorization", "Bearer " + actor.getApiKey())
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(ApiV1PostController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.resultCode").value("404-1"))
+                .andExpect(jsonPath("$.msg").value("해당 데이터가 존재하지 않습니다."));
+    }
 }
