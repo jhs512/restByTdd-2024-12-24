@@ -4,6 +4,7 @@ import com.ll.restByTdd.domain.member.member.entity.Member;
 import com.ll.restByTdd.domain.post.comment.dto.PostCommentDto;
 import com.ll.restByTdd.domain.post.comment.entity.PostComment;
 import com.ll.restByTdd.domain.post.post.entity.Post;
+import com.ll.restByTdd.domain.post.post.repository.PostRepository;
 import com.ll.restByTdd.domain.post.post.service.PostService;
 import com.ll.restByTdd.global.exceptions.ServiceException;
 import com.ll.restByTdd.global.rq.Rq;
@@ -22,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ApiV1PostCommentController {
     private final PostService postService;
+    private final PostRepository postRepository;
     private final Rq rq;
 
     @GetMapping
@@ -75,7 +77,6 @@ public class ApiV1PostCommentController {
     }
 
     @PutMapping("/{id}")
-    @Transactional
     public RsData<PostCommentDto> modify(
             @PathVariable long postId,
             @PathVariable long id,
@@ -94,6 +95,8 @@ public class ApiV1PostCommentController {
         postComment.checkActorCanModify(actor);
 
         postComment.modify(reqBody.content);
+
+        postRepository.save(post);
 
         return new RsData<>(
                 "200-1",

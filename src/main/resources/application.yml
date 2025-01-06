@@ -9,12 +9,16 @@ spring:
     ansi:
       enabled: always
   datasource:
-    url: jdbc:h2:./db_dev;MODE=MySQL
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    #    url: jdbc:h2:./db_dev;MODE=MySQL
+    #    username: sa
+    #    password:
+    #    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://localhost:3306/restByTdd__dev
+    username: root
+    password: lldj123414
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-    open-in-view: false
+    open-in-view: true
     hibernate:
       ddl-auto: update
     properties:
