@@ -1,4 +1,4 @@
-package com.ll.restByTdd.com.ll.restByTdd.domain.post.comment.controller;
+package com.ll.restByTdd.domain.post.comment.controller;
 
 import com.ll.restByTdd.domain.member.member.entity.Member;
 import com.ll.restByTdd.domain.member.member.service.MemberService;
